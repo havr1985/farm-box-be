@@ -1,10 +1,16 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { configs } from '@config/configuration';
 import { validate } from '@config/env.validation';
 import { DatabaseModule } from '@infrastructure/database/database.module';
 import { CorrelationIdMiddleware } from '@common/middleware/correlation-id.middleware';
 import { LoggerModule } from '@common/logger/logger.module';
+import { GlobalExceptionFilter } from '@common/filters/global-exception.filter';
 
 @Module({
   imports: [
@@ -17,11 +23,12 @@ import { LoggerModule } from '@common/logger/logger.module';
     DatabaseModule,
     LoggerModule,
   ],
-  controllers: [],
-  providers: [],
+  providers: [GlobalExceptionFilter],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CorrelationIdMiddleware).forRoutes('*');
+    consumer
+      .apply(CorrelationIdMiddleware)
+      .forRoutes({ path: '*path', method: RequestMethod.ALL });
   }
 }

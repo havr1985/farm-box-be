@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, RequestMethod } from '@nestjs/common';
 import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
 import { CORRELATION_ID_HEADER } from '@common/middleware/correlation-id.middleware';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -13,6 +13,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         const isProd =
           configService.get<string>('app.nodeEnv') === 'production';
         return {
+          forRoutes: [{ path: '*path', method: RequestMethod.ALL }],
           pinoHttp: {
             genReqId: (req: Request) =>
               req.headers[CORRELATION_ID_HEADER] as string,
@@ -34,7 +35,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
                 url: req.url,
               }),
               res: (res: Response) => ({
-                status: res.status,
+                statusCode: res.statusCode,
               }),
             },
             autoLogging: true,
