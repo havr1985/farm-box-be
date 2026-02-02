@@ -13,7 +13,11 @@ export const dbConfig = registerAs('db', () => ({
   database: process.env.DB_NAME,
 }));
 
-export const configs = [appConfig, dbConfig];
+export const loggerConfig = registerAs('logger', () => ({
+  level: process.env.LOG_LEVEL,
+}));
+
+export const configs = [appConfig, dbConfig, loggerConfig];
 
 export type AppConfig = ReturnType<typeof appConfig>;
 export type DbConfig = ReturnType<typeof dbConfig>;
