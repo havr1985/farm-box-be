@@ -11,6 +11,9 @@ import { DatabaseModule } from '@infrastructure/database/database.module';
 import { CorrelationIdMiddleware } from '@common/middleware/correlation-id.middleware';
 import { LoggerModule } from '@common/logger/logger.module';
 import { GlobalExceptionFilter } from '@common/filters/global-exception.filter';
+import { UsersModule } from '@modules/users/users.module';
+import { ProductsModule } from './modules/products/products.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { GlobalExceptionFilter } from '@common/filters/global-exception.filter';
     }),
     DatabaseModule,
     LoggerModule,
+    UsersModule,
+    ProductsModule,
+    OrdersModule,
   ],
   providers: [GlobalExceptionFilter],
 })
