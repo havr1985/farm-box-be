@@ -12,8 +12,10 @@ import { CorrelationIdMiddleware } from '@common/middleware/correlation-id.middl
 import { LoggerModule } from '@common/logger/logger.module';
 import { GlobalExceptionFilter } from '@common/filters/global-exception.filter';
 import { UsersModule } from '@modules/users/users.module';
-import { ProductsModule } from './modules/products/products.module';
-import { OrdersModule } from './modules/orders/orders.module';
+import { ProductsModule } from '@modules/products/products.module';
+import { OrdersModule } from '@modules/orders/orders.module';
+import { FarmsModule } from '@modules/farms/farms.module';
+import { CategoriesModule } from '@modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { OrdersModule } from './modules/orders/orders.module';
     UsersModule,
     ProductsModule,
     OrdersModule,
+    FarmsModule,
+    CategoriesModule,
   ],
   providers: [GlobalExceptionFilter],
 })

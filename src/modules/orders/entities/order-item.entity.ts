@@ -36,9 +36,15 @@ export class OrderItem {
   })
   priceCentsSnapshot: number;
 
+  @Column({ name: 'farm_name_snapshot', type: 'varchar', length: 255 })
+  farmNameSnapshot: string;
+
   @ManyToOne(() => Order, (order) => order.items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
+
+  @Column({ name: 'line_total_cents', type: 'int' })
+  lineTotalCents: number;
 
   @ManyToOne(() => Product, (product) => product.orderItems, {
     onDelete: 'RESTRICT',

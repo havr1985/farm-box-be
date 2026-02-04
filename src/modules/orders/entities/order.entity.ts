@@ -34,7 +34,7 @@ export class Order extends BaseEntity {
     type: 'varchar',
     length: 120,
   })
-  idempotencyKey: string | null;
+  idempotencyKey: string;
 
   @Column({
     type: 'enum',
@@ -46,6 +46,15 @@ export class Order extends BaseEntity {
 
   @Column({ name: 'total_cents', type: 'int', default: 0 })
   totalCents: number;
+
+  @Column({ name: 'discount_cents', type: 'int', default: 0 })
+  discountCents: number;
+
+  @Column({ name: 'delivery_cents', type: 'int', default: 0 })
+  deliveryCents: number;
+
+  @Column({ name: 'final_cents', type: 'int', default: 0 })
+  finalCents: number;
 
   @ManyToOne(() => User, (user) => user.orders, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
