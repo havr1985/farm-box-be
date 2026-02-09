@@ -12,6 +12,7 @@ import {
 } from '@common/exceptions/app.exception';
 import { OrderItem } from '@modules/orders/entities/order-item.entity';
 import { isUniqueViolation } from '@common/utils/database-error.utils';
+import { OrdersFilterInput } from '@modules/orders/graphql/inputs/orders-filter.input';
 
 @Injectable()
 export class OrdersService {
@@ -169,8 +170,9 @@ export class OrdersService {
     userId: string,
     cursor?: string,
     limit: number = 20,
+    filter?: OrdersFilterInput,
   ): Promise<{ orders: Order[]; nextCursor: string | null }> {
     await this.usersService.findOne(userId);
-    return this.ordersRepository.findByUser(userId, cursor, limit);
+    return this.ordersRepository.findByUser(userId, cursor, limit, filter);
   }
 }

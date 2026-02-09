@@ -12,6 +12,7 @@ import {
   ApiResponseBuilder,
 } from '@common/interfaces/api-response.interfaces';
 import { AppException } from '@common/exceptions/app.exception';
+import { GqlContextType } from '@nestjs/graphql';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -20,6 +21,27 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   catch(exception: unknown, host: ArgumentsHost): void {
+    if (host.getType<GqlContextType>() === 'graphql') {
+      this.handleGraphQl(exception);
+      throw exception;
+    }
+    this.handleHttp(exception, host);
+  }
+
+  private handleGraphQl(exception: unknown): void {
+    const status = this.getStatus(exception);
+
+    if (status >= Number(HttpStatus.INTERNAL_SERVER_ERROR)) {
+      this.logger.warn({ context: 'GraphQL', exception });
+    } else {
+      this.logger.error(
+        { context: 'GraphQL' },
+        exception instanceof Error ? exception.stack : String(exception),
+      );
+    }
+  }
+
+  private handleHttp(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
@@ -41,6 +63,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     response
       .status(status)
       .json(ApiResponseBuilder.error(error, { correlationId, path }));
+  }
+
+  private getStatus(exception: unknown): number {
+    if (exception instanceof HttpException) {
+      return exception.getStatus();
+    }
+    return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
   private buildError(
