@@ -22,4 +22,11 @@ export class OrdersResolver {
       filter,
     );
   }
+
+  @Query(() => OrderType, { name: 'order', nullable: true })
+  async getOrder(
+    @Args('id', { type: () => ID }) id: string,
+  ): Promise<OrderType | null> {
+    return this.ordersService.findOne(id);
+  }
 }

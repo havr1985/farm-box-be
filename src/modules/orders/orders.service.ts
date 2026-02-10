@@ -7,6 +7,7 @@ import { CreateOrderDto } from '@modules/orders/dto/create-order.dto';
 import { Order, OrderStatus } from '@modules/orders/entities/order.entity';
 import { Product } from '@modules/products/entities/product.entity';
 import {
+  ConflictException,
   InsufficientStockException,
   NotFoundException,
 } from '@common/exceptions/app.exception';
@@ -174,5 +175,46 @@ export class OrdersService {
   ): Promise<{ orders: Order[]; nextCursor: string | null }> {
     await this.usersService.findOne(userId);
     return this.ordersRepository.findByUser(userId, cursor, limit, filter);
+  }
+
+  async cancelOrder(id: string): Promise<Order> {
+    const order = await this.findOne(id);
+    const cancelableStatuses = [
+      OrderStatus.PENDING,
+      OrderStatus.PROCESSING,
+      OrderStatus.CONFIRMED,
+    ];
+    if (!cancelableStatuses.includes(order.status)) {
+      this.logger.error(
+        `Order with status '${order.status}' cannot be canceled`,
+      );
+      throw new ConflictException(
+        `Order with status '${order.status}' cannot be canceled`,
+      );
+    }
+
+    const qr = this.dataSource.createQueryRunner();
+    await qr.connect();
+    await qr.startTransaction();
+    try {
+      for (const item of order.items) {
+        await qr.manager
+          .createQueryBuilder()
+          .update(Product)
+          .set({ stock: () => `stock + ${item.quantity}` })
+          .where('id = :id', { id: item.productId })
+          .execute();
+      }
+      order.status = OrderStatus.CANCELED;
+      const savedOrder = await qr.manager.save(order);
+
+      await qr.commitTransaction();
+      return savedOrder;
+    } catch (error) {
+      await qr.rollbackTransaction();
+      throw error;
+    } finally {
+      await qr.release();
+    }
   }
 }

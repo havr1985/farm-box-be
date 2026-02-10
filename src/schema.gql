@@ -22,6 +22,7 @@ type OrderItem {
   id: ID!
   priceCentsSnapshot: Int!
   product: Product
+  productId: ID
   productNameSnapshot: String!
   quantity: Int!
 }
@@ -53,6 +54,7 @@ type Product {
 
 type Query {
   health: String!
+  order(id: ID!): Order
   orders(filter: OrdersFilterInput, pagination: OrdersPaginationInput, userId: ID!): OrdersResponseType!
 }
 

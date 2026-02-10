@@ -6,6 +6,9 @@ export class OrderItemType {
   @Field(() => ID)
   id: string;
 
+  @Field(() => ID, { nullable: true })
+  productId: string;
+
   @Field(() => Int)
   quantity: number;
 
