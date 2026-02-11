@@ -17,6 +17,7 @@ import { OrdersModule } from '@modules/orders/orders.module';
 import { FarmsModule } from '@modules/farms/farms.module';
 import { CategoriesModule } from '@modules/categories/categories.module';
 import { GraphqlModule } from '@infrastructure/graphql/graphql.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { GraphqlModule } from '@infrastructure/graphql/graphql.module';
     FarmsModule,
     CategoriesModule,
     GraphqlModule,
+    AuthModule,
   ],
   providers: [GlobalExceptionFilter],
 })

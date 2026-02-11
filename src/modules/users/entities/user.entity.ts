@@ -10,10 +10,12 @@ import {
 import { Order } from '@modules/orders/entities/order.entity';
 import { Farm } from '@modules/farms/entities/farm.entity';
 
-export enum UserRoles {
+export enum UserRole {
   CUSTOMER = 'customer',
   ADMIN = 'admin',
   FARMER = 'farmer',
+  PENDING_FARMER = 'pending_farmer',
+  SUPPORT = 'support',
 }
 
 @Entity('users')
@@ -34,11 +36,12 @@ export class User extends BaseEntity {
 
   @Column({
     type: 'enum',
-    enum: UserRoles,
+    enum: UserRole,
     enumName: 'user_roles_enum',
-    default: UserRoles.CUSTOMER,
+    array: true,
+    default: `{${UserRole.CUSTOMER}}`,
   })
-  role: UserRoles;
+  roles: UserRole[];
 
   @Column({ name: 'farm_id', type: 'uuid', nullable: true })
   farmId: string | null;
@@ -52,4 +55,20 @@ export class User extends BaseEntity {
   @ManyToOne(() => Farm, (farm) => farm.users, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'farm_id' })
   farm: Farm | null;
+
+  hasRole(role: UserRole): boolean {
+    return this.roles.includes(role);
+  }
+
+  get isAdmin(): boolean {
+    return this.hasRole(UserRole.ADMIN);
+  }
+
+  get isFarmer(): boolean {
+    return this.hasRole(UserRole.FARMER);
+  }
+
+  get isSupport(): boolean {
+    return this.hasRole(UserRole.SUPPORT);
+  }
 }

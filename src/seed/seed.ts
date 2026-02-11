@@ -6,7 +6,7 @@ import {
   Product,
   ProductUnit,
 } from '@modules/products/entities/product.entity';
-import { User, UserRoles } from '@modules/users/entities/user.entity';
+import { User, UserRole } from '@modules/users/entities/user.entity';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -331,7 +331,7 @@ async function seed() {
         passwordHash: '$2b$10$dummyhashcustomer1234567890abcdefghijklmno',
         name: 'Олена Покупець',
         phone: '+380501234567',
-        role: UserRoles.CUSTOMER,
+        role: [UserRole.CUSTOMER],
         isActive: true,
       },
       {
@@ -339,14 +339,14 @@ async function seed() {
         passwordHash: '$2b$10$dummyhashcustomer2234567890abcdefghijklmno',
         name: 'Іван Тестовий',
         phone: '+380507654321',
-        role: UserRoles.CUSTOMER,
+        role: [UserRole.CUSTOMER],
         isActive: true,
       },
       {
         email: 'admin@farmbox.ua',
         passwordHash: '$2b$10$dummyhashadmin00234567890abcdefghijklmnopq',
         name: 'Адмін FarmBox',
-        role: UserRoles.ADMIN,
+        role: [UserRole.ADMIN],
         isActive: true,
       },
       {
@@ -354,8 +354,15 @@ async function seed() {
         passwordHash: '$2b$10$dummyhashfarmer0234567890abcdefghijklmnopq',
         name: 'Петро Фермер',
         phone: '+380509876543',
-        role: UserRoles.FARMER,
+        role: [UserRole.FARMER, UserRole.CUSTOMER],
         farmId: farms[0].id,
+        isActive: true,
+      },
+      {
+        email: 'support@farmbox.ua',
+        passwordHash: '$2b$10$dummyhashsupport0234567890abcdefghijklmnopq',
+        name: 'Підтримка FarmBox',
+        role: [UserRole.SUPPORT],
         isActive: true,
       },
     ]);
