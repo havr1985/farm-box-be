@@ -7,6 +7,7 @@ import {
 } from '@nestjs/graphql';
 import { OrderStatus } from '@modules/orders/graphql/enums/order-status.enum';
 import { OrderItemType } from '@modules/orders/graphql/types/order-item.type';
+import { UserType } from '@modules/users/graphql/user.type';
 
 @ObjectType('Order')
 export class OrderType {
@@ -15,6 +16,9 @@ export class OrderType {
 
   @Field(() => ID)
   userId: string;
+
+  @Field(() => UserType, { nullable: true })
+  user?: UserType;
 
   @Field(() => OrderStatus)
   status: OrderStatus;

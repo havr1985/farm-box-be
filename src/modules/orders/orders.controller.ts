@@ -1,22 +1,14 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
-  Query,
 } from '@nestjs/common';
 import { OrdersService } from '@modules/orders/orders.service';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateOrderDto } from '@modules/orders/dto/create-order.dto';
 import { OrderResponseDto } from '@modules/orders/dto/order-response.dto';
 

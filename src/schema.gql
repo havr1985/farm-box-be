@@ -14,6 +14,7 @@ type Order {
   status: order_status!
   totalCents: Int!
   updatedAt: DateTime!
+  user: User
   userId: ID!
 }
 
@@ -55,7 +56,14 @@ type Product {
 type Query {
   health: String!
   order(id: ID!): Order
-  orders(filter: OrdersFilterInput, pagination: OrdersPaginationInput, userId: ID!): OrdersResponseType!
+  userOrders(filter: OrdersFilterInput, pagination: OrdersPaginationInput, userId: ID!): OrdersResponseType!
+}
+
+type User {
+  email: String!
+  id: ID!
+  name: String!
+  phone: String
 }
 
 """Order status"""
