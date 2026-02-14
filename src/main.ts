@@ -6,6 +6,7 @@ import { Logger } from 'nestjs-pino';
 import { ResponseTransformInterceptor } from '@common/interceptors/response-transform.interceptor';
 import { GlobalExceptionFilter } from '@common/filters/global-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -22,6 +23,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  app.use(cookieParser());
 
   app.useGlobalInterceptors(new ResponseTransformInterceptor());
   app.useGlobalFilters(app.get(GlobalExceptionFilter));

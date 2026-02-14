@@ -13,6 +13,6 @@ export class UsersController {
 
   @Get(':id')
   async getOne(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
-    return this.usersService.findOne(id);
+    return this.usersService.findById(id);
   }
 }

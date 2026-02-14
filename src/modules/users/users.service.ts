@@ -11,11 +11,19 @@ export class UsersService {
     return this.usersRepository.findAll();
   }
 
-  async findOne(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne(id);
+  async findById(id: string): Promise<User> {
+    const user = await this.usersRepository.findOneById(id);
     if (!user) {
       throw new NotFoundException('User', id);
     }
     return user;
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOneByEmail(email);
+  }
+
+  async create(dto: Partial<User>): Promise<User> {
+    return this.usersRepository.createUser(dto);
   }
 }
