@@ -15,10 +15,20 @@ import { Request, Response } from 'express';
 import { AuthResponseDto } from '@modules/auth/dto/auth-response.dto';
 import { LoginDto } from '@modules/auth/dto/login.dto';
 import { UnauthorizedException } from '@common/exceptions/app.exception';
+import { Public } from '@modules/auth/decorators/public.decorator';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 const REFRESH_COOKIE_NAME = 'refresh_token';
 const REFRESH_COOKIE_PATH = '/api/auth/refresh';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   private readonly refreshCookieMaxAge: number;
@@ -28,7 +38,15 @@ export class AuthController {
   ) {
     this.refreshCookieMaxAge = this.parseToMs(this.jwt.refreshExpiresIn);
   }
-
+  @Public()
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiBody({ type: RegisterDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User registered',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({ status: 409, description: 'Email already exists' })
   @Post('register')
   async register(
     @Body() registerDto: RegisterDto,
@@ -44,6 +62,15 @@ export class AuthController {
     return auth;
   }
 
+  @Public()
+  @ApiOperation({ summary: 'Login with email and password' })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
@@ -60,6 +87,14 @@ export class AuthController {
     return auth;
   }
 
+  @ApiOperation({ summary: 'Refresh access token using httpOnly cookie' })
+  @ApiCookieAuth('refresh_token')
+  @ApiResponse({
+    status: 200,
+    description: 'Tokens refreshed',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
@@ -77,6 +112,10 @@ export class AuthController {
     return auth;
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout and revoke refresh token' })
+  @ApiResponse({ status: 200, description: 'Logged out successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(

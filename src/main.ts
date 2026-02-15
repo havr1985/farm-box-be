@@ -36,6 +36,7 @@ async function bootstrap() {
     .setDescription('E-commerce Backend API')
     .setVersion('1.0')
     .addBearerAuth()
+    .addCookieAuth('refresh_token')
     .addApiKey(
       { type: 'apiKey', name: 'x-correlation-id', in: 'header' },
       'CorrelationId',

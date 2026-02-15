@@ -27,7 +27,7 @@ export class OrdersService {
   }
 
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
-    await this.usersService.findOne(createOrderDto.userId);
+    await this.usersService.findById(createOrderDto.userId);
     const existingOrder = await this.ordersRepository.findByIdempotencyKey(
       createOrderDto.userId,
       createOrderDto.idempotencyKey,
@@ -173,7 +173,7 @@ export class OrdersService {
     limit: number = 20,
     filter?: OrdersFilterInput,
   ): Promise<{ orders: Order[]; nextCursor: string | null }> {
-    await this.usersService.findOne(userId);
+    await this.usersService.findById(userId);
     return this.ordersRepository.findByUser(userId, cursor, limit, filter);
   }
 
