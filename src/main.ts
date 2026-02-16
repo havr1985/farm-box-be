@@ -6,12 +6,15 @@ import { Logger } from 'nestjs-pino';
 import { ResponseTransformInterceptor } from '@common/interceptors/response-transform.interceptor';
 import { GlobalExceptionFilter } from '@common/filters/global-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const configService = app.get<ConfigService>(ConfigService);
+  const globalPrefix = configService.get<string>('app.globalPrefix');
+  const apiVersion = configService.get<string>('app.apiVersion');
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(globalPrefix || 'api');
 
   const logger = app.get<Logger>(Logger);
   app.useLogger(logger);
@@ -23,16 +26,22 @@ async function bootstrap() {
     }),
   );
 
+  app.use(cookieParser());
+
   app.useGlobalInterceptors(new ResponseTransformInterceptor());
   app.useGlobalFilters(app.get(GlobalExceptionFilter));
 
-  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: apiVersion || '1',
+  });
 
   const config = new DocumentBuilder()
     .setTitle('GroceryFlow API')
     .setDescription('E-commerce Backend API')
     .setVersion('1.0')
     .addBearerAuth()
+    .addCookieAuth('refresh_token')
     .addApiKey(
       { type: 'apiKey', name: 'x-correlation-id', in: 'header' },
       'CorrelationId',

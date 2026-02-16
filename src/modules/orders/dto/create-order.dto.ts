@@ -30,14 +30,6 @@ export class CreateOrderItemDto {
 
 export class CreateOrderDto {
   @ApiProperty({
-    description: 'User Id',
-    example: '91972ffc-c0b6-4996-94a0-d5a1bc442f47',
-  })
-  @IsNotEmpty()
-  @IsUUID()
-  userId: string;
-
-  @ApiProperty({
     description: 'Idempotency key to prevent duplicate orders',
     example: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
   })

@@ -17,6 +17,11 @@ import { OrdersModule } from '@modules/orders/orders.module';
 import { FarmsModule } from '@modules/farms/farms.module';
 import { CategoriesModule } from '@modules/categories/categories.module';
 import { GraphqlModule } from '@infrastructure/graphql/graphql.module';
+import { AuthModule } from '@modules/auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { PermissionGuard } from '@modules/auth/guards/permission.guard';
 
 @Module({
   imports: [
@@ -34,8 +39,23 @@ import { GraphqlModule } from '@infrastructure/graphql/graphql.module';
     FarmsModule,
     CategoriesModule,
     GraphqlModule,
+    AuthModule,
   ],
-  providers: [GlobalExceptionFilter],
+  providers: [
+    GlobalExceptionFilter,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

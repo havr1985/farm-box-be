@@ -54,9 +54,10 @@ type Product {
 }
 
 type Query {
+  adminUserOrders(filter: OrdersFilterInput, pagination: OrdersPaginationInput, userId: ID!): OrdersResponseType!
   health: String!
   order(id: ID!): Order
-  userOrders(filter: OrdersFilterInput, pagination: OrdersPaginationInput, userId: ID!): OrdersResponseType!
+  userOrders(filter: OrdersFilterInput, pagination: OrdersPaginationInput): OrdersResponseType!
 }
 
 type User {
