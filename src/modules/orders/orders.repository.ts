@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from '@modules/orders/entities/order.entity';
 import { Repository } from 'typeorm';
+import { OrdersFilterInput } from '@modules/orders/graphql/inputs/orders-filter.input';
 
 @Injectable()
 export class OrdersRepository {
@@ -31,6 +32,7 @@ export class OrdersRepository {
     userId: string,
     cursor?: string,
     limit: number = 20,
+    filter?: OrdersFilterInput,
   ): Promise<{ orders: Order[]; nextCursor: string | null }> {
     const qb = this.ordersRepository
       .createQueryBuilder('order')
@@ -41,6 +43,21 @@ export class OrdersRepository {
     if (cursor) {
       qb.andWhere('order.createdAt < :cursor', { cursor });
     }
+
+    if (filter?.status) {
+      qb.andWhere('order.status = :status', { status: filter.status });
+    }
+
+    if (filter?.dateFrom) {
+      qb.andWhere('order.createdAt >= :dateFrom', {
+        dateFrom: filter.dateFrom,
+      });
+    }
+
+    if (filter?.dateTo) {
+      qb.andWhere('order.createdAt <= :dateTo', { dateTo: filter.dateTo });
+    }
+
     const orders = await qb.getMany();
 
     const hasNext = orders.length > limit;
@@ -50,6 +67,6 @@ export class OrdersRepository {
       ? orders[orders.length - 1].createdAt.toISOString()
       : null;
 
-    return { orders: orders, nextCursor };
+    return { orders, nextCursor };
   }
 }

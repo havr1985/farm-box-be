@@ -34,3 +34,4 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 See [docs/HW5.md](docs/HW5.md) for details.
+GraphQL docs - [docs/HW7.md](docs/HW7.md) 
