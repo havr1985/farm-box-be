@@ -11,6 +11,11 @@ import { OrdersService } from '@modules/orders/orders.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateOrderDto } from '@modules/orders/dto/create-order.dto';
 import { OrderResponseDto } from '@modules/orders/dto/order-response.dto';
+import { CurrentUser } from '@modules/auth/decorators/current-user.decorator';
+import { Roles } from '@modules/auth/decorators/roles.decorator';
+import { UserRole } from '@modules/users/entities/user.entity';
+import { RequiredPermission } from '@modules/auth/decorators/require-permission.decorator';
+import { AccessTokenPayload } from '@modules/auth/interfaces/jwt-payload.interface';
 
 @Controller('orders')
 @ApiTags('Orders')
@@ -18,6 +23,8 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
+  @Roles(UserRole.CUSTOMER)
+  @RequiredPermission('orders:create')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create a new order',
@@ -43,12 +50,15 @@ export class OrdersController {
     description: 'Product not found',
   })
   async create(
-    @Body() createOrderDto: CreateOrderDto,
+    @CurrentUser('sub') userId: string,
+    @Body()
+    createOrderDto: CreateOrderDto,
   ): Promise<OrderResponseDto> {
-    return this.ordersService.createOrder(createOrderDto);
+    return this.ordersService.createOrder(userId, createOrderDto);
   }
 
   @Post(':id/cancel')
+  @RequiredPermission('orders:cancel:own')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cancel order' })
   @ApiParam({
@@ -67,7 +77,10 @@ export class OrdersController {
     status: HttpStatus.NOT_FOUND,
     description: 'Order not found',
   })
-  async cancelOrder(@Param('id', ParseUUIDPipe) id: string) {
-    return this.ordersService.cancelOrder(id);
+  async cancelOrder(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: AccessTokenPayload,
+  ) {
+    return this.ordersService.cancelOrder(id, user);
   }
 }

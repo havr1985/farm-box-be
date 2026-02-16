@@ -3,9 +3,9 @@ import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { UserRole } from '@modules/users/entities/user.entity';
 import { ROLES_KEY } from '@modules/auth/decorators/roles.decorator';
-import { Request } from 'express';
 import { AccessTokenPayload } from '@modules/auth/interfaces/jwt-payload.interface';
 import { ForbiddenException } from '@common/exceptions/app.exception';
+import { getRequestHelper } from '@modules/auth/guards/get-request.helper';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -22,7 +22,7 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
-    const req: Request = context.switchToHttp().getRequest();
+    const req = getRequestHelper(context);
     const user = req.user as AccessTokenPayload;
     const hasRole = requiredRoles.some((role) => user.roles?.includes(role));
 

@@ -8,12 +8,15 @@ import { Order, OrderStatus } from '@modules/orders/entities/order.entity';
 import { Product } from '@modules/products/entities/product.entity';
 import {
   ConflictException,
+  ForbiddenException,
   InsufficientStockException,
   NotFoundException,
 } from '@common/exceptions/app.exception';
 import { OrderItem } from '@modules/orders/entities/order-item.entity';
 import { isUniqueViolation } from '@common/utils/database-error.utils';
 import { OrdersFilterInput } from '@modules/orders/graphql/inputs/orders-filter.input';
+import { AccessTokenPayload } from '@modules/auth/interfaces/jwt-payload.interface';
+import { getUserPermissions } from '@modules/auth/constants/permissions';
 
 @Injectable()
 export class OrdersService {
@@ -26,10 +29,13 @@ export class OrdersService {
     this.logger.setContext(OrdersService.name);
   }
 
-  async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
-    await this.usersService.findById(createOrderDto.userId);
+  async createOrder(
+    userId: string,
+    createOrderDto: CreateOrderDto,
+  ): Promise<Order> {
+    await this.usersService.findById(userId);
     const existingOrder = await this.ordersRepository.findByIdempotencyKey(
-      createOrderDto.userId,
+      userId,
       createOrderDto.idempotencyKey,
     );
     if (existingOrder) {
@@ -100,7 +106,7 @@ export class OrdersService {
           .execute();
       }
       const order = qr.manager.create(Order, {
-        userId: createOrderDto.userId,
+        userId,
         idempotencyKey: createOrderDto.idempotencyKey,
         status: OrderStatus.PENDING,
         totalCents,
@@ -121,7 +127,7 @@ export class OrdersService {
       this.logger.info(
         {
           orderId: savedOrder.id,
-          userId: createOrderDto.userId,
+          userId,
           totalCents,
           itemsCount: items.length,
         },
@@ -142,27 +148,29 @@ export class OrdersService {
         );
 
         const existing = await this.ordersRepository.findByIdempotencyKey(
-          createOrderDto.userId,
+          userId,
           createOrderDto.idempotencyKey,
         );
 
         if (existing) return existing;
       }
 
-      this.logger.error(
-        { userId: createOrderDto.userId },
-        'Failed to create order',
-      );
+      this.logger.error({ userId }, 'Failed to create order');
       throw error;
     } finally {
       await qr.release();
     }
   }
 
-  async findOne(id: string): Promise<Order> {
+  async findOne(id: string, currentUser: AccessTokenPayload): Promise<Order> {
     const order = await this.ordersRepository.findById(id);
     if (!order) {
       throw new NotFoundException('Order', id);
+    }
+    const permissions = getUserPermissions(currentUser.roles);
+    if (permissions.includes('orders:read:any')) return order;
+    if (order.userId !== currentUser.sub) {
+      throw new ForbiddenException('You can only view your own orders');
     }
     return order;
   }
@@ -177,8 +185,19 @@ export class OrdersService {
     return this.ordersRepository.findByUser(userId, cursor, limit, filter);
   }
 
-  async cancelOrder(id: string): Promise<Order> {
-    const order = await this.findOne(id);
+  async cancelOrder(
+    id: string,
+    currentUser: AccessTokenPayload,
+  ): Promise<Order> {
+    const order = await this.findOne(id, currentUser);
+
+    const permissions = getUserPermissions(currentUser.roles);
+    if (
+      !permissions.includes('orders:cancel:any') &&
+      order.userId !== currentUser.sub
+    ) {
+      throw new ForbiddenException('You can only cancel your own orders');
+    }
     const cancelableStatuses = [
       OrderStatus.PENDING,
       OrderStatus.PROCESSING,

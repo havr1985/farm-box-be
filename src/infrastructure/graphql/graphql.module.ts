@@ -7,6 +7,7 @@ import { LoadersModule } from './loaders/loaders.module';
 import { LoadersFactory } from '@infrastructure/graphql/loaders/loaders.factory';
 import { AppException } from '@common/exceptions/app.exception';
 import { GraphQLError } from 'graphql';
+import { Request } from 'express';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { GraphQLError } from 'graphql';
         includeStacktraceInErrorResponses:
           process.env.NODE_ENV !== 'production',
         sortSchema: true,
-        context: () => ({
+        context: ({ req }: { req: Request }) => ({
+          req,
           loaders: loadersFactory.create(),
         }),
         formatError: (formattedError: GraphQLError, error) => {

@@ -2,10 +2,10 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { PERMISSION_KEY } from '@modules/auth/decorators/require-permission.decorator';
-import { Request } from 'express';
 import { AccessTokenPayload } from '@modules/auth/interfaces/jwt-payload.interface';
 import { getUserPermissions } from '@modules/auth/constants/permissions';
 import { ForbiddenException } from '@common/exceptions/app.exception';
+import { getRequestHelper } from '@modules/auth/guards/get-request.helper';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -22,7 +22,7 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    const request: Request = context.switchToHttp().getRequest();
+    const request = getRequestHelper(context);
     const user = request.user as AccessTokenPayload;
     const userPermissions = getUserPermissions(user.roles);
 

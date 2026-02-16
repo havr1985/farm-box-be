@@ -4,6 +4,8 @@ import { StringValue } from 'ms';
 export const appConfig = registerAs('app', () => ({
   port: process.env.APP_PORT ? parseInt(process.env.APP_PORT, 10) : 3000,
   nodeEnv: process.env.NODE_ENV || 'development',
+  globalPrefix: 'api',
+  apiVersion: '1',
 }));
 
 export const dbConfig = registerAs('db', () => ({

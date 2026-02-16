@@ -9,7 +9,12 @@ import {
   Res,
 } from '@nestjs/common';
 import { AuthService } from '@modules/auth/services/auth.service';
-import { JwtConfig, jwtConfig } from '@config/configuration';
+import {
+  AppConfig,
+  appConfig,
+  JwtConfig,
+  jwtConfig,
+} from '@config/configuration';
 import { RegisterDto } from '@modules/auth/dto/register.dto';
 import { Request, Response } from 'express';
 import { AuthResponseDto } from '@modules/auth/dto/auth-response.dto';
@@ -24,18 +29,22 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { CurrentUser } from '@modules/auth/decorators/current-user.decorator';
 
 const REFRESH_COOKIE_NAME = 'refresh_token';
-const REFRESH_COOKIE_PATH = '/api/auth/refresh';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   private readonly refreshCookieMaxAge: number;
+  private readonly refreshCookiePath: string;
   constructor(
     private readonly authService: AuthService,
     @Inject(jwtConfig.KEY) private readonly jwt: JwtConfig,
+    @Inject(appConfig.KEY) private readonly app: AppConfig,
   ) {
+    const basePath = `/${this.app.globalPrefix}/v${this.app.apiVersion}`;
+    this.refreshCookiePath = `${basePath}/auth/refresh`;
     this.refreshCookieMaxAge = this.parseToMs(this.jwt.refreshExpiresIn);
   }
   @Public()
@@ -95,6 +104,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+  @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
@@ -119,11 +129,10 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(
-    @Req() req: Request,
+    @CurrentUser('sub') userId: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
-    const token = this.getRefreshToken(req);
-    await this.authService.logout(token);
+    await this.authService.logoutAll(userId);
     this.clearRefreshCookie(res);
     return { message: 'Logged out successfully' };
   }
@@ -141,7 +150,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      path: REFRESH_COOKIE_PATH,
+      path: this.refreshCookiePath,
       maxAge: this.refreshCookieMaxAge,
     });
   }
@@ -151,7 +160,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      path: REFRESH_COOKIE_PATH,
+      path: this.refreshCookiePath,
     });
   }
 
