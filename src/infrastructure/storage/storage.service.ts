@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -82,17 +83,26 @@ export class StorageService {
     }
   }
 
-  buildFileUrl(key: string): string {
+  async buildFileUrl(key: string): Promise<string> {
     if (this.cloudfrontBaseUrl) {
       return `${this.cloudfrontBaseUrl}/${key}`;
     }
 
-    if (this.endpoint) {
-      const base = this.trimSlash(this.endpoint);
-      return `${base}/${this.bucket}/${key}`;
-    }
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+    });
 
-    return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`;
+    return getSignedUrl(this.client, command, {
+      expiresIn: 3600,
+    });
+
+    // if (this.endpoint) {
+    //   const base = this.trimSlash(this.endpoint);
+    //   return `${base}/${this.bucket}/${key}`;
+    // }
+    //
+    // return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`;
   }
 
   async deleteFile(key: string): Promise<void> {

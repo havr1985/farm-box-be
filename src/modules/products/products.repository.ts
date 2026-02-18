@@ -18,4 +18,8 @@ export class ProductsRepository {
     if (ids.length === 0) return [];
     return await this.productsRepository.find({ where: { id: In(ids) } });
   }
+
+  async save(product: Product): Promise<void> {
+    await this.productsRepository.save(product);
+  }
 }

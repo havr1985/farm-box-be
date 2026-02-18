@@ -21,6 +21,8 @@ export const PERMISSIONS: Record<UserRole, string[]> = {
     'users:read:own',
     'users:update:own',
 
+    'files:upload:own',
+
     // Farmer application
     'farmer-applications:create',
     'farmer-applications:read:own',
@@ -44,6 +46,10 @@ export const PERMISSIONS: Record<UserRole, string[]> = {
     // Users
     'users:read:own',
     'users:update:own',
+
+    'files:upload:own',
+    'products:images:attach:own',
+    'farms:images:attach:own',
 
     // Payments - виплати своєї ферми
     'payments:read:farm',
@@ -74,6 +80,10 @@ export const PERMISSIONS: Record<UserRole, string[]> = {
     'categories:update',
     'categories:delete',
 
+    'files:upload:own',
+    'products:images:attach:any',
+    'farms:images:attach:any',
+
     // Farmer applications
     'farmer-applications:read:any',
     'farmer-applications:approve',
@@ -95,6 +105,8 @@ export const PERMISSIONS: Record<UserRole, string[]> = {
     // Products, Farms - read
     'products:read',
     'farms:read',
+
+    'files:upload:own',
   ],
 
   [UserRole.PENDING_FARMER]: ['farmer-applications:read:own'],

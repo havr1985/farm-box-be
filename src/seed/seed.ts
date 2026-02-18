@@ -2,11 +2,14 @@ import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { Farm } from '@modules/farms/entities/farm.entity';
 import { Category } from '@modules/categories/entities/category.entity';
+import * as argon2 from 'argon2';
 import {
   Product,
   ProductUnit,
 } from '@modules/products/entities/product.entity';
 import { User, UserRole } from '@modules/users/entities/user.entity';
+
+const DEFAULT_PASSWORD = 'Test123!@#';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -27,6 +30,18 @@ async function seed() {
   await queryRunner.startTransaction();
 
   try {
+    // ==========================================
+    // CLEANUP
+    // ==========================================
+    await queryRunner.query(
+      'TRUNCATE "users", "orders", "products", "categories", "farms", "files", "refresh_tokens" CASCADE',
+    );
+    console.log('🧹 Tables truncated');
+    // ==========================================
+    // PASSWORD HASH
+    // ==========================================
+    const passwordHash = await argon2.hash(DEFAULT_PASSWORD);
+    console.log(`🔑 Password for all users: ${DEFAULT_PASSWORD}`);
     // ==========================================
     // FARMS
     // ==========================================
@@ -328,41 +343,50 @@ async function seed() {
     const users = await userRepo.save([
       {
         email: 'customer@farmbox.ua',
-        passwordHash: '$2b$10$dummyhashcustomer1234567890abcdefghijklmno',
+        passwordHash,
         name: 'Олена Покупець',
         phone: '+380501234567',
-        role: [UserRole.CUSTOMER],
+        roles: [UserRole.CUSTOMER],
         isActive: true,
       },
       {
         email: 'customer2@farmbox.ua',
-        passwordHash: '$2b$10$dummyhashcustomer2234567890abcdefghijklmno',
+        passwordHash,
         name: 'Іван Тестовий',
         phone: '+380507654321',
-        role: [UserRole.CUSTOMER],
+        roles: [UserRole.CUSTOMER],
         isActive: true,
       },
       {
         email: 'admin@farmbox.ua',
-        passwordHash: '$2b$10$dummyhashadmin00234567890abcdefghijklmnopq',
+        passwordHash,
         name: 'Адмін FarmBox',
-        role: [UserRole.ADMIN],
+        roles: [UserRole.ADMIN],
         isActive: true,
       },
       {
-        email: 'farmer@farmbox.ua',
-        passwordHash: '$2b$10$dummyhashfarmer0234567890abcdefghijklmnopq',
+        email: 'farmer1@farmbox.ua',
+        passwordHash,
         name: 'Петро Фермер',
         phone: '+380509876543',
-        role: [UserRole.FARMER, UserRole.CUSTOMER],
+        roles: [UserRole.CUSTOMER, UserRole.FARMER],
         farmId: farms[0].id,
         isActive: true,
       },
       {
+        email: 'farmer2@farmbox.ua',
+        passwordHash,
+        name: 'Марія Садівниця',
+        phone: '+380501112233',
+        roles: [UserRole.CUSTOMER, UserRole.FARMER],
+        farmId: farms[1].id,
+        isActive: true,
+      },
+      {
         email: 'support@farmbox.ua',
-        passwordHash: '$2b$10$dummyhashsupport0234567890abcdefghijklmnopq',
+        passwordHash,
         name: 'Підтримка FarmBox',
-        role: [UserRole.SUPPORT],
+        roles: [UserRole.SUPPORT],
         isActive: true,
       },
     ]);

@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Order } from '@modules/orders/entities/order.entity';
 import { Farm } from '@modules/farms/entities/farm.entity';
+import { FileRecord } from '@modules/files/entities/file-record.entity';
 
 export enum UserRole {
   CUSTOMER = 'customer',
@@ -48,6 +49,13 @@ export class User extends BaseEntity {
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
+
+  @Column({ name: 'avatar_file_id', type: 'uuid', nullable: true })
+  avatarFileId: string | null;
+
+  @ManyToOne(() => FileRecord, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'avatar_file_id' })
+  avatarFile: FileRecord | null;
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
