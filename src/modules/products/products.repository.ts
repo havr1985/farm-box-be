@@ -10,8 +10,16 @@ export class ProductsRepository {
     private readonly productsRepository: Repository<Product>,
   ) {}
 
+  async create(data: Partial<Product>): Promise<Product> {
+    const product = this.productsRepository.create(data);
+    return await this.productsRepository.save(product);
+  }
+
   async findById(id: string): Promise<Product | null> {
-    return this.productsRepository.findOne({ where: { id } });
+    return this.productsRepository.findOne({
+      where: { id },
+      relations: ['mainImageFile'],
+    });
   }
 
   async findByIds(ids: string[]): Promise<Product[]> {
@@ -21,5 +29,9 @@ export class ProductsRepository {
 
   async save(product: Product): Promise<void> {
     await this.productsRepository.save(product);
+  }
+
+  async remove(product: Product): Promise<void> {
+    await this.productsRepository.softRemove(product);
   }
 }
