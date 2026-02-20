@@ -15,6 +15,9 @@ import { FileRecord } from '@modules/files/entities/file-record.entity';
 import { randomUUID } from 'crypto';
 import { UpdateProductDto } from '@modules/products/dto/update-product.dto';
 import { ProductResponseDto } from '@modules/products/dto/product-response.dto';
+import { ProductsFilterInput } from '@modules/products/graphql/inputs/products-filter.input';
+import { ProductsPaginationInput } from '@modules/products/graphql/inputs/products-pagination.input';
+import { ProductsResponseType } from '@modules/products/graphql/types/products-response.type';
 
 @Injectable()
 export class ProductsService {
@@ -50,6 +53,29 @@ export class ProductsService {
       await this.filesService.attachToEntity(imageFile, product.id);
     }
     return this.toResponse(product);
+  }
+
+  async findAll(
+    filter?: ProductsFilterInput,
+    pagination?: ProductsPaginationInput,
+  ): Promise<ProductsResponseType> {
+    const page = pagination?.page ?? 1;
+    const limit = pagination?.limit ?? 20;
+
+    const { items, totalCount } = await this.productsRepository.findAll(
+      filter ?? {},
+      page,
+      limit,
+    );
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      items,
+      totalCount,
+      page,
+      totalPages,
+      hasNextPage: page < totalPages,
+    };
   }
 
   async findById(id: string): Promise<Product> {
