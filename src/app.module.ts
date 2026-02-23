@@ -24,6 +24,7 @@ import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { PermissionGuard } from '@modules/auth/guards/permission.guard';
 import { StorageModule } from './infrastructure/storage/storage.module';
 import { FilesModule } from './modules/files/files.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { FilesModule } from './modules/files/files.module';
     AuthModule,
     StorageModule,
     FilesModule,
+    HealthModule,
   ],
   providers: [
     GlobalExceptionFilter,
