@@ -25,6 +25,8 @@ import { PermissionGuard } from '@modules/auth/guards/permission.guard';
 import { StorageModule } from './infrastructure/storage/storage.module';
 import { FilesModule } from './modules/files/files.module';
 import { HealthModule } from './modules/health/health.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { HealthModule } from './modules/health/health.module';
       envFilePath: '.env',
       validate,
     }),
+    EventEmitterModule.forRoot({ wildcard: true }),
     DatabaseModule,
     LoggerModule,
     UsersModule,
@@ -46,6 +49,7 @@ import { HealthModule } from './modules/health/health.module';
     StorageModule,
     FilesModule,
     HealthModule,
+    NotificationsModule,
   ],
   providers: [
     GlobalExceptionFilter,

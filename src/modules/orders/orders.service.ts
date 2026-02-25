@@ -17,6 +17,11 @@ import { isUniqueViolation } from '@common/utils/database-error.utils';
 import { OrdersFilterInput } from '@modules/orders/graphql/inputs/orders-filter.input';
 import { AccessTokenPayload } from '@modules/auth/interfaces/jwt-payload.interface';
 import { getUserPermissions } from '@modules/auth/constants/permissions';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  OrderEvent,
+  OrderEventType,
+} from '@modules/notifications/events/order.events';
 
 @Injectable()
 export class OrdersService {
@@ -24,6 +29,7 @@ export class OrdersService {
     private readonly ordersRepository: OrdersRepository,
     private readonly usersService: UsersService,
     private readonly dataSource: DataSource,
+    private readonly eventEmitter: EventEmitter2,
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(OrdersService.name);
@@ -123,6 +129,8 @@ export class OrdersService {
       savedOrder.items = await qr.manager.save(items);
 
       await qr.commitTransaction();
+
+      this.emitOrderCreatedEvents(savedOrder, productsMap, userId);
 
       this.logger.info(
         {
@@ -234,6 +242,40 @@ export class OrdersService {
       throw error;
     } finally {
       await qr.release();
+    }
+  }
+
+  private emitOrderCreatedEvents(
+    order: Order,
+    productMap: Map<string, Product>,
+    customerId: string,
+  ): void {
+    const farmGroups = new Map<
+      string,
+      { farmName: string; items: OrderItem[] }
+    >();
+    for (const item of order.items) {
+      const product = productMap.get(item.productId)!;
+      const farmId = product?.farm.id;
+
+      if (!farmGroups.has(farmId)) {
+        farmGroups.set(farmId, { farmName: product?.farm.name, items: [] });
+      }
+      farmGroups.get(farmId)?.items.push(item);
+    }
+
+    for (const [farmId, group] of farmGroups) {
+      this.eventEmitter.emit('order.created', {
+        type: OrderEventType.CREATED,
+        orderId: order.id,
+        idempotencyKey: order.idempotencyKey,
+        customerId,
+        farmId,
+        farmName: group.farmName,
+        totalCents: group.items.reduce((sum, i) => sum + i.lineTotalCents, 0),
+        status: OrderStatus.PENDING,
+        occurredAt: new Date(),
+      } satisfies OrderEvent);
     }
   }
 }
