@@ -1,7 +1,15 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { BaseEntity } from '@common/entities/base.entity';
 import { Product } from '@modules/products/entities/product.entity';
 import { User } from '@modules/users/entities/user.entity';
+import { FileRecord } from '@modules/files/entities/file-record.entity';
 
 @Entity('farms')
 @Index('IDX_farms_slug_unique', ['slug'], { unique: true })
@@ -18,8 +26,16 @@ export class Farm extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   location: string;
 
-  @Column({ name: 'logo_url', type: 'varchar', length: 500, nullable: true })
-  logoUrl: string | null;
+  @Column({
+    name: 'logo_file_id',
+    type: 'uuid',
+    nullable: true,
+  })
+  logoFileId: string | null;
+
+  @ManyToOne(() => FileRecord, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'logo_file_id' })
+  logoFile: FileRecord | null;
 
   @Column({ name: 'is_organic_certified', type: 'boolean', default: false })
   isOrganicCertified: boolean;

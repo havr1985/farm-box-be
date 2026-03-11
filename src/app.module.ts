@@ -22,6 +22,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { PermissionGuard } from '@modules/auth/guards/permission.guard';
+import { StorageModule } from './infrastructure/storage/storage.module';
+import { FilesModule } from './modules/files/files.module';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { PermissionGuard } from '@modules/auth/guards/permission.guard';
     CategoriesModule,
     GraphqlModule,
     AuthModule,
+    StorageModule,
+    FilesModule,
   ],
   providers: [
     GlobalExceptionFilter,

@@ -20,6 +20,7 @@ export class TokenService {
       sub: user.id,
       email: user.email,
       roles: user.roles,
+      farmId: user.farmId ?? null,
     };
     return this.jwtService.sign(
       { ...payload },

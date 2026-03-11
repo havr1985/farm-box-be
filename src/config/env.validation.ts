@@ -2,6 +2,7 @@ import { plainToInstance } from 'class-transformer';
 import {
   IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -43,6 +44,31 @@ class EnvironmentVariables {
 
   @IsString()
   JWT_REFRESH_SECRET: string;
+
+  @IsString()
+  AWS_ACCESS_KEY_ID: string;
+
+  @IsString()
+  AWS_SECRET_ACCESS_KEY: string;
+
+  @IsString()
+  AWS_S3_BUCKET: string;
+
+  @IsString()
+  @IsOptional()
+  AWS_REGION?: string;
+
+  @IsString()
+  @IsOptional()
+  AWS_S3_ENDPOINT?: string;
+
+  @IsString()
+  @IsOptional()
+  CLOUDFRONT_BASE_URL?: string;
+
+  @IsNumber()
+  @IsOptional()
+  FILES_PRESIGN_EXPIRES_IN_SEC?: number;
 }
 
 export function validate(config: Record<string, unknown>) {

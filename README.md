@@ -33,5 +33,8 @@ $ pnpm run start:dev
 # production mode
 $ pnpm run start:prod
 ```
-See [docs/HW5.md](docs/HW5.md) for details.
-GraphQL docs - [docs/HW7.md](docs/HW7.md) 
+### See [docs/HW5.md](docs/HW5.md) for details.
+
+### GraphQL docs - [docs/HW7.md](docs/HW7.md) 
+
+### AWS S3 docs - [docs/HW9.md](docs/HW9.md) 

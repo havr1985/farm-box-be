@@ -25,4 +25,8 @@ export class UsersRepository {
     const newUser = this.usersRepository.create(data);
     return this.usersRepository.save(newUser);
   }
+
+  async save(user: User): Promise<User> {
+    return this.usersRepository.save(user);
+  }
 }

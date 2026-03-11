@@ -11,6 +11,7 @@ import { BaseEntity } from '@common/entities/base.entity';
 import { OrderItem } from '@modules/orders/entities/order-item.entity';
 import { Farm } from '@modules/farms/entities/farm.entity';
 import { Category } from '@modules/categories/entities/category.entity';
+import { FileRecord } from '@modules/files/entities/file-record.entity';
 
 export enum ProductUnit {
   KG = 'kg',
@@ -26,6 +27,7 @@ export enum ProductUnit {
 @Index('IDX_products_farm_id', ['farmId'])
 @Index('IDX_products_category_id', ['categoryId'])
 @Index('IDX_products_is_active', ['isActive'])
+@Index('IDX_products_main_image_file_id', ['mainImageFileId'])
 @Check('CHK_stock_positive', '"stock" >= 0')
 @Check('CHK_price_cents_positive', '"price_cents" >= 0')
 export class Product extends BaseEntity {
@@ -70,8 +72,12 @@ export class Product extends BaseEntity {
   @Column({ name: 'expires_at', type: 'date', nullable: true })
   expiresAt: Date | null;
 
-  @Column({ name: 'image_url', type: 'varchar', length: 500, nullable: true })
-  imageUrl: string | null;
+  @Column({ name: 'main_image_file_id', type: 'uuid', nullable: true })
+  mainImageFileId: string | null;
+
+  @ManyToOne(() => FileRecord, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'main_image_file_id' })
+  mainImageFile: FileRecord | null;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
