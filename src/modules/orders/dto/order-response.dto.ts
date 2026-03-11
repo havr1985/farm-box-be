@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OrderStatus } from '@modules/orders/entities/order.entity';
+import { OrderStatus } from '@modules/orders/enums/order-status.enum';
 
 export class OrderItemResponseDto {
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
@@ -22,6 +22,23 @@ export class OrderItemResponseDto {
 
   @ApiProperty({ example: 9000 })
   lineTotalCents: number;
+}
+
+export class OrderFulfillmentResponseDto {
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  id: string;
+
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  farmId: string;
+
+  @ApiProperty({ enum: OrderStatus, example: OrderStatus.PENDING })
+  status: OrderStatus;
+
+  @ApiProperty({ example: 9000 })
+  subtotalCents: number;
+
+  @ApiProperty({ type: [OrderItemResponseDto] })
+  items: OrderItemResponseDto[];
 }
 
 export class OrderResponseDto {
@@ -49,8 +66,8 @@ export class OrderResponseDto {
   @ApiProperty({ example: 18000 })
   finalCents: number;
 
-  @ApiProperty({ type: [OrderItemResponseDto] })
-  items: OrderItemResponseDto[];
+  @ApiProperty({ type: [OrderFulfillmentResponseDto] })
+  fulfillments: OrderFulfillmentResponseDto[];
 
   @ApiProperty()
   createdAt: Date;

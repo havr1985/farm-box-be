@@ -14,7 +14,7 @@ export class OrdersRepository {
   async findById(id: string): Promise<Order | null> {
     return this.ordersRepository.findOne({
       where: { id },
-      relations: { items: true },
+      relations: { fulfillments: { items: true } },
     });
   }
 
@@ -24,7 +24,7 @@ export class OrdersRepository {
   ): Promise<Order | null> {
     return this.ordersRepository.findOne({
       where: { userId, idempotencyKey },
-      relations: { items: true },
+      relations: { fulfillments: { items: true } },
     });
   }
 
@@ -36,7 +36,8 @@ export class OrdersRepository {
   ): Promise<{ orders: Order[]; nextCursor: string | null }> {
     const qb = this.ordersRepository
       .createQueryBuilder('order')
-      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('order.fulfillments', 'fulfillment')
+      .leftJoinAndSelect('fulfillment.items', 'items')
       .where('order.userId = :userId', { userId })
       .orderBy('order.createdAt', 'DESC')
       .take(limit + 1);
@@ -68,5 +69,9 @@ export class OrdersRepository {
       : null;
 
     return { orders, nextCursor };
+  }
+
+  async save(order: Order): Promise<Order> {
+    return this.ordersRepository.save(order);
   }
 }

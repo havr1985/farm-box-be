@@ -2,17 +2,14 @@ import {
   Check,
   Column,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Order } from '@modules/orders/entities/order.entity';
 import { Product } from '@modules/products/entities/product.entity';
+import { OrderFulfillment } from '@modules/orders/entities/order-fulfillment.entity';
 
 @Entity('order_items')
-@Index('IDX_order_items_order_id', ['orderId'])
-@Index('IDX_order_items_product_id', ['productId'])
 @Check('CHK_quantity_non_negative', '"quantity" > 0')
 export class OrderItem {
   @PrimaryGeneratedColumn('uuid')
@@ -23,6 +20,9 @@ export class OrderItem {
 
   @Column({ name: 'product_id', type: 'uuid' })
   productId: string;
+
+  @Column({ name: 'fulfillment_id', type: 'uuid' })
+  fulfillmentId: string;
 
   @Column({ type: 'int' })
   quantity: number;
@@ -39,9 +39,9 @@ export class OrderItem {
   @Column({ name: 'farm_name_snapshot', type: 'varchar', length: 255 })
   farmNameSnapshot: string;
 
-  @ManyToOne(() => Order, (order) => order.items, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'order_id' })
-  order: Order;
+  @ManyToOne(() => OrderFulfillment, (f) => f.items)
+  @JoinColumn({ name: 'fulfillment_id' })
+  fulfillment: OrderFulfillment;
 
   @Column({ name: 'line_total_cents', type: 'int' })
   lineTotalCents: number;
