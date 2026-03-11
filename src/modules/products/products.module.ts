@@ -5,10 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from '@modules/products/entities/product.entity';
 import { ProductsRepository } from '@modules/products/products.repository';
 import { FilesModule } from '@modules/files/files.module';
+import { CategoriesModule } from '@modules/categories/categories.module';
+import { ProductsResolver } from '@modules/products/graphql/resolvers/products.resolver';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product]), FilesModule],
-  providers: [ProductsService, ProductsRepository],
+  imports: [TypeOrmModule.forFeature([Product]), FilesModule, CategoriesModule],
+  providers: [ProductsService, ProductsRepository, ProductsResolver],
   controllers: [ProductsController],
   exports: [ProductsService],
 })
