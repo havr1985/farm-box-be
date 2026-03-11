@@ -38,3 +38,5 @@ $ pnpm run start:prod
 ### GraphQL docs - [docs/HW7.md](docs/HW7.md) 
 
 ### AWS S3 docs - [docs/HW9.md](docs/HW9.md) 
+
+### Docker - [docs/DOCKER.md](docs/DOCKER.md) 

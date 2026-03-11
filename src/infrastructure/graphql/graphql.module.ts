@@ -16,7 +16,7 @@ import { Request } from 'express';
       imports: [LoadersModule],
       inject: [LoadersFactory],
       useFactory: (loadersFactory: LoadersFactory) => ({
-        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+        autoSchemaFile: true,
         graphiql: process.env.NODE_ENV !== 'production',
         includeStacktraceInErrorResponses:
           process.env.NODE_ENV !== 'production',
