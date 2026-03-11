@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { OrdersService } from '@modules/orders/orders.service';
@@ -16,6 +17,7 @@ import { Roles } from '@modules/auth/decorators/roles.decorator';
 import { UserRole } from '@modules/users/entities/user.entity';
 import { RequiredPermission } from '@modules/auth/decorators/require-permission.decorator';
 import { AccessTokenPayload } from '@modules/auth/interfaces/jwt-payload.interface';
+import { UpdateFulfillmentStatusDto } from '@modules/orders/dto/update-fulfillment-status.dto';
 
 @Controller('orders')
 @ApiTags('Orders')
@@ -82,5 +84,23 @@ export class OrdersController {
     @CurrentUser() user: AccessTokenPayload,
   ) {
     return this.ordersService.cancelOrder(id, user);
+  }
+
+  @Patch(':orderId/fulfillments/:fulfillmentId/status')
+  @Roles(UserRole.FARMER, UserRole.ADMIN)
+  @RequiredPermission('orders:update:own')
+  @ApiOperation({ summary: 'Update fulfillment status' })
+  async updateFulfillmentStatus(
+    @Param('orderId', ParseUUIDPipe) orderId: string,
+    @Param('fulfillmentId', ParseUUIDPipe) fulfillmentId: string,
+    @Body() dto: UpdateFulfillmentStatusDto,
+    @CurrentUser() user: AccessTokenPayload,
+  ): Promise<OrderResponseDto> {
+    return this.ordersService.updateFulfilmentStatus(
+      orderId,
+      fulfillmentId,
+      dto.status,
+      user,
+    );
   }
 }

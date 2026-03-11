@@ -8,16 +8,8 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '@common/entities/base.entity';
 import { User } from '@modules/users/entities/user.entity';
-import { OrderItem } from '@modules/orders/entities/order-item.entity';
-
-export enum OrderStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  PROCESSING = 'processing',
-  SHIPPED = 'shipped',
-  DELIVERED = 'delivered',
-  CANCELED = 'canceled',
-}
+import { OrderFulfillment } from '@modules/orders/entities/order-fulfillment.entity';
+import { OrderStatus } from '@modules/orders/enums/order-status.enum';
 
 @Entity('orders')
 @Index('IDX_orders_user_id', ['userId'])
@@ -60,6 +52,6 @@ export class Order extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
-  items: OrderItem[];
+  @OneToMany(() => OrderFulfillment, (f) => f.order)
+  fulfillments: OrderFulfillment[];
 }

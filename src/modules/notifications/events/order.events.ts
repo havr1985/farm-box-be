@@ -1,4 +1,4 @@
-import { OrderStatus } from '@modules/orders/entities/order.entity';
+import { OrderStatus } from '@modules/orders/enums/order-status.enum';
 
 export enum OrderEventType {
   CREATED = 'order.created',

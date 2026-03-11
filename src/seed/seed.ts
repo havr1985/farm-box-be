@@ -34,6 +34,9 @@ async function seed() {
     // CLEANUP
     // ==========================================
     await queryRunner.query(
+      'TRUNCATE "users", "orders", "order_fulfillments", "order_items", "products", "categories", "farms", "files", "refresh_tokens" CASCADE',
+    );
+    await queryRunner.query(
       'TRUNCATE "users", "orders", "products", "categories", "farms", "files", "refresh_tokens" CASCADE',
     );
     console.log('🧹 Tables truncated');
